@@ -6,7 +6,7 @@ dotenv.config();
 const env = cleanEnv(process.env, {
   NODE_ENV: str({ choices: ['development', 'test', 'production'], default: 'development' }),
   PORT: port({ default: 5000 }),
-  MONGO_URI: url({ default: 'mongodb://localhost:27017/digitory' }),
+  MONGO_URI: str({ default: 'mongodb://localhost:27017/digitory' }),
   JWT_SECRET: str({ default: 'supersecret_jwt_key_change_me' }),
   JWT_REFRESH_SECRET: str({ default: 'supersecret_refresh_key_change_me' }),
   JWT_EXPIRES_IN: str({ default: '15m' }),
