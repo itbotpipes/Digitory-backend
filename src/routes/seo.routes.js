@@ -6,6 +6,7 @@ const authenticate = require('../middlewares/auth');
 const router = express.Router();
 
 // Public/Front-end endpoint
+router.get('/:pageType/slug/:slug', seoController.getSeoBySlug);
 router.get('/:pageType/:pageId', seoController.getSeo);
 
 // Admin routes

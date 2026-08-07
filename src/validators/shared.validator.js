@@ -26,6 +26,8 @@ exports.createContactMessageValidator = [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('email').trim().isEmail().withMessage('Valid email is required'),
   body('phone').trim().notEmpty().withMessage('Phone is required'),
+  body('restaurantName').trim().notEmpty().withMessage('Restaurant name is required'),
+  body('category').optional().trim().isIn(['Restaurant', 'Hotel', 'Cloud Kitchen']).withMessage('Invalid category'),
   body('interested').optional().trim(),
   body('message').trim().notEmpty().withMessage('Message is required'),
 ];

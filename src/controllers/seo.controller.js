@@ -8,6 +8,28 @@ const mongoose = require('mongoose');
 
 // GET /api/seo
 exports.getAllSeo = asyncHandler(async (req, res) => {
+  // Ensure the 6 core website pages exist in the Page collection
+  const corePages = [
+    { title: 'Home', slug: 'home' },
+    { title: 'About', slug: 'about' },
+    { title: 'Solutions', slug: 'solutions' },
+    { title: 'Contact', slug: 'contact' },
+    { title: 'Request Demo', slug: 'request-demo' },
+    { title: 'Resources', slug: 'blog' }
+  ];
+
+  for (const page of corePages) {
+    const exists = await Page.findOne({ slug: page.slug });
+    if (!exists) {
+      await Page.create({
+        title: page.title,
+        slug: page.slug,
+        status: 'Published',
+        content: `Static page content for ${page.title}`
+      });
+    }
+  }
+
   // To show all pages in the table, we should fetch from Post, Page, Solution, then attach SEO
   const [posts, pages, solutions, seoEntries] = await Promise.all([
     Post.find({}).select('title slug status updatedAt createdAt').lean(),
@@ -18,19 +40,33 @@ exports.getAllSeo = asyncHandler(async (req, res) => {
 
   const seoMap = {};
   seoEntries.forEach(seo => {
-    seoMap[seo.pageId.toString()] = seo;
+    if (seo.pageId) {
+      seoMap[seo.pageId.toString()] = seo;
+    }
   });
 
-  const mapData = (items, type) => items.map(item => ({
-    _id: item._id,
-    pageType: type,
-    name: item.title,
-    url: `/${type === 'Post' ? 'blog' : type === 'Solution' ? 'solutions' : ''}/${item.slug}`.replace(/\/\/+/g, '/'),
-    slug: item.slug,
-    status: item.status || 'Published',
-    updatedAt: item.updatedAt || item.createdAt,
-    seo: seoMap[item._id.toString()] || null
-  }));
+  const mapData = (items, type) => items.map(item => {
+    let url = '';
+    if (type === 'Post') {
+      url = `/blog/${item.slug}`;
+    } else if (type === 'Solution') {
+      url = `/solutions/${item.slug}`;
+    } else if (type === 'Page') {
+      url = item.slug === 'home' ? '/' : `/${item.slug}`;
+    }
+    url = url.replace(/\/\/+/g, '/');
+
+    return {
+      _id: item._id,
+      pageType: type,
+      name: item.title,
+      url,
+      slug: item.slug,
+      status: item.status || 'Published',
+      updatedAt: item.updatedAt || item.createdAt,
+      seo: seoMap[item._id.toString()] || null
+    };
+  });
 
   const allPages = [
     ...mapData(posts, 'Post'),
@@ -102,9 +138,23 @@ exports.saveSeo = asyncHandler(async (req, res) => {
     return res.status(400).json(new ApiResponse(400, null, 'pageId and pageType are required'));
   }
 
+  let slug = seoData.slug;
+  if (!slug) {
+    if (pageType === 'Post') {
+      const item = await Post.findById(pageId).select('slug');
+      if (item) slug = item.slug;
+    } else if (pageType === 'Page') {
+      const item = await Page.findById(pageId).select('slug');
+      if (item) slug = item.slug;
+    } else if (pageType === 'Solution') {
+      const item = await Solution.findById(pageId).select('slug');
+      if (item) slug = item.slug;
+    }
+  }
+
   const updatedSeo = await SeoEntry.findOneAndUpdate(
     { pageId, pageType },
-    { $set: { ...seoData, updatedBy: req.user?.id } },
+    { $set: { ...seoData, slug, updatedBy: req.user?.id } },
     { new: true, upsert: true }
   );
 
@@ -132,4 +182,11 @@ exports.bulkUpdateSeo = asyncHandler(async (req, res) => {
   }
 
   return res.status(200).json(new ApiResponse(200, null, 'Bulk SEO update successful'));
+});
+
+// GET /api/seo/:pageType/slug/:slug
+exports.getSeoBySlug = asyncHandler(async (req, res) => {
+  const { pageType, slug } = req.params;
+  const seo = await SeoEntry.findOne({ slug, pageType });
+  return res.status(200).json(new ApiResponse(200, seo, 'Fetched SEO entry by slug'));
 });

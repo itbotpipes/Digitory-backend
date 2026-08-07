@@ -13,6 +13,11 @@ class UserController {
     res.status(200).json(new ApiResponse(200, result, 'Users fetched successfully'));
   }
 
+  async getRoles(req, res) {
+    const roles = await userService.getRoles();
+    res.status(200).json(new ApiResponse(200, roles, 'Roles fetched successfully'));
+  }
+
   async getUserById(req, res) {
     const user = await userService.getUserById(req.params.id);
     res.status(200).json(new ApiResponse(200, user, 'User fetched successfully'));

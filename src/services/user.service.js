@@ -20,6 +20,10 @@ class UserService {
     return await userRepository.create(userData);
   }
 
+  async getRoles() {
+    return await roleRepository.findAll();
+  }
+
   async getUsers(page, limit, search, status, roleId) {
     const filters = {};
     if (search) {

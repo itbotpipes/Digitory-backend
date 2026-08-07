@@ -20,6 +20,9 @@ router.route('/')
   .get(getUsersValidator, validate, asyncHandler(userController.getUsers))
   .post(createUserValidator, validate, asyncHandler(userController.createUser));
 
+router.route('/roles')
+  .get(asyncHandler(userController.getRoles));
+
 router.route('/:id')
   .get(asyncHandler(userController.getUserById))
   .put(updateUserValidator, validate, asyncHandler(userController.updateUser))
