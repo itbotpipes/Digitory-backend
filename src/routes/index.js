@@ -11,6 +11,12 @@ const categoryRoutes = require('./category.routes');
 const postRoutes = require('./post.routes');
 const { testimonialRouter, faqRouter, contactRouter, demoRouter } = require('./shared.routes');
 const dashboardRoutes = require('./dashboard.routes');
+const solutionRoutes = require('./solution.routes');
+const commentRoutes = require('./comment.routes');
+const seoRoutes = require('./seo.routes');
+const redirectRoutes = require('./redirect.routes');
+const sitemapRoutes = require('./sitemap.routes');
+const robotsRoutes = require('./robots.routes');
 
 const router = express.Router();
 
@@ -46,5 +52,11 @@ router.use('/faqs', faqRouter);
 router.use('/contact-messages', contactRouter);
 router.use('/demo-requests', demoRouter);
 router.use('/dashboard', dashboardRoutes);
+router.use('/solutions', solutionRoutes);
+router.use('/comments', commentRoutes);
+router.use('/seo', seoRoutes);
+router.use('/redirects', redirectRoutes);
+router.use('/sitemap', sitemapRoutes);
+router.use('/robots', robotsRoutes);
 
 module.exports = router;
