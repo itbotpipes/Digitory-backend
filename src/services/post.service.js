@@ -22,6 +22,10 @@ class PostService {
       if (!cat) throw new ApiError(404, 'Category not found');
     }
 
+    if (data.tags && Array.isArray(data.tags)) {
+      data.tags = data.tags.map(t => typeof t === 'object' && t !== null && t.tag ? t.tag : String(t));
+    }
+
     if (data.status === 'Published') {
       data.publishedAt = new Date();
     }
@@ -49,6 +53,10 @@ class PostService {
         const cat = await categoryRepository.findById(updateData.category);
         if (!cat) throw new ApiError(404, 'Category not found');
       }
+    }
+
+    if (updateData.tags && Array.isArray(updateData.tags)) {
+      updateData.tags = updateData.tags.map(t => typeof t === 'object' && t !== null && t.tag ? t.tag : String(t));
     }
 
     if (post.category && post.category._id) {
