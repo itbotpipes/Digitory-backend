@@ -51,6 +51,12 @@ class PostService {
       }
     }
 
+    if (post.category && post.category._id) {
+      post.category = post.category._id;
+    }
+    if (post.author && post.author._id) {
+      post.author = post.author._id;
+    }
     Object.assign(post, updateData);
     // Explicitly update 'updatedAt' natively due to standard mongoose timestamps
     await post.save();
