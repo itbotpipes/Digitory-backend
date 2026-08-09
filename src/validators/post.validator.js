@@ -18,7 +18,13 @@ exports.updatePostValidator = [
   body('slug').optional().trim(),
   body('excerpt').optional().trim(),
   body('featuredImage').optional().trim(),
-  body('category').optional({ checkFalsy: true }).isMongoId(),
+  body('category').optional({ checkFalsy: true }).custom((value) => {
+    if (value === '') return true;
+    if (!require('mongoose').Types.ObjectId.isValid(value)) {
+      throw new Error('Category must be a valid Mongo ID');
+    }
+    return true;
+  }),
   body('status').optional().isIn(['Draft', 'Published']),
   body('tags').optional().isArray(),
   body('seo').optional().isObject(),
