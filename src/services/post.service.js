@@ -11,7 +11,13 @@ class PostService {
       if (existing) throw new ApiError(400, 'Slug is already in use');
     }
 
-    if (data.category) {
+    if (!data.category || data.category === '') {
+      let cat = await categoryRepository.findByName('Articles');
+      if (!cat) {
+        cat = await categoryRepository.create({ name: 'Articles', slug: 'articles' });
+      }
+      data.category = cat._id;
+    } else {
       const cat = await categoryRepository.findById(data.category);
       if (!cat) throw new ApiError(404, 'Category not found');
     }
@@ -33,8 +39,16 @@ class PostService {
     }
 
     if (updateData.category && updateData.category !== String(post.category?._id)) {
-      const cat = await categoryRepository.findById(updateData.category);
-      if (!cat) throw new ApiError(404, 'Category not found');
+      if (updateData.category === '') {
+        let cat = await categoryRepository.findByName('Articles');
+        if (!cat) {
+          cat = await categoryRepository.create({ name: 'Articles', slug: 'articles' });
+        }
+        updateData.category = cat._id;
+      } else {
+        const cat = await categoryRepository.findById(updateData.category);
+        if (!cat) throw new ApiError(404, 'Category not found');
+      }
     }
 
     Object.assign(post, updateData);

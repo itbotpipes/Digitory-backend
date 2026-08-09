@@ -38,7 +38,7 @@ app.use(morgan(morganFormat, {
 }));
 
 // Serve static files (uploads)
-app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Swagger Documentation
 const swaggerDocument = YAML.load(path.join(__dirname, 'docs', 'swagger.yaml'));

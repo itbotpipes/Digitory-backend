@@ -17,6 +17,7 @@ const seoRoutes = require('./seo.routes');
 const redirectRoutes = require('./redirect.routes');
 const sitemapRoutes = require('./sitemap.routes');
 const robotsRoutes = require('./robots.routes');
+const updateRoutes = require('./update.routes');
 
 const router = express.Router();
 
@@ -58,5 +59,6 @@ router.use('/seo', seoRoutes);
 router.use('/redirects', redirectRoutes);
 router.use('/sitemap', sitemapRoutes);
 router.use('/robots', robotsRoutes);
+router.use('/updates', updateRoutes);
 
 module.exports = router;

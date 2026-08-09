@@ -4,7 +4,7 @@ const { getMediaValidator } = require('../validators/media.validator');
 const validate = require('../middlewares/validate');
 const asyncHandler = require('../utils/asyncHandler');
 const authenticate = require('../middlewares/auth');
-const upload = require('../middlewares/upload');
+const { upload } = require('../middlewares/upload');
 
 const router = express.Router();
 

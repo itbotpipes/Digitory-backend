@@ -1,21 +1,23 @@
 const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
 const ApiError = require('../utils/ApiError');
-const fs = require('fs');
-const path = require('path');
 
-const uploadDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
+// Cloudinary storage — images go to the 'digitory' folder in your Cloudinary account
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'digitory',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif'],
+    transformation: [{ quality: 'auto', fetch_format: 'auto' }],
   },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + '-' + file.originalname.replace(/\s+/g, '-'));
-  }
 });
 
 const fileFilter = (req, file, cb) => {
@@ -29,9 +31,9 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 10 * 1024 * 1024,
+    fileSize: 10 * 1024 * 1024, // 10 MB
   },
   fileFilter: fileFilter,
 });
 
-module.exports = upload;
+module.exports = { upload, cloudinary };
