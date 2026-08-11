@@ -33,6 +33,42 @@ class AuthService {
   }
 
   /**
+   * Register a new user
+   */
+  async signup(name, email, password) {
+    // 1. Check if user exists
+    const existingUser = await userRepository.findByEmail(email);
+    if (existingUser) {
+      throw new ApiError(400, 'User already exists with this email');
+    }
+
+    // 2. Find or create default "User" role
+    let role = await roleRepository.findByName('User');
+    if (!role) {
+      // Fallback: create User role if it doesn't exist
+      role = await roleRepository.create({ name: 'User', permissions: [] });
+    }
+
+    // 3. Create User
+    const user = await userRepository.create({
+      name,
+      email,
+      password,
+      roleId: role._id,
+    });
+
+    // 4. Generate Token (auto login)
+    const payload = user.getJwtPayload();
+    const token = this.generateToken(payload);
+
+    // 5. Clean user object before returning
+    const userObj = user.toObject();
+    delete userObj.password;
+
+    return { user: userObj, token };
+  }
+
+  /**
    * Fetch authenticated user details based on token payload
    */
   async getMe(userId) {

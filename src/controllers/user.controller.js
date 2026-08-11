@@ -9,7 +9,15 @@ class UserController {
 
   async getUsers(req, res) {
     const { page = 1, limit = 10, search, status, role } = req.query;
-    const result = await userService.getUsers(page, limit, search, status, role);
+    
+    let roleIds = [];
+    if (role) {
+      const roleNames = role.split(',');
+      const roles = await require('../models/Role.model').find({ name: { $in: roleNames } });
+      roleIds = roles.map(r => r._id);
+    }
+
+    const result = await userService.getUsers(page, limit, search, status, roleIds.length > 0 ? { $in: roleIds } : undefined);
     res.status(200).json(new ApiResponse(200, result, 'Users fetched successfully'));
   }
 

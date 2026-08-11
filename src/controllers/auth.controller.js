@@ -18,6 +18,21 @@ class AuthController {
   }
 
   /**
+   * Signup user
+   */
+  async signup(req, res) {
+    const { name, email, password } = req.body;
+    
+    // Call service (business logic)
+    const { user, token } = await authService.signup(name, email, password);
+
+    // Return response
+    res.status(201).json(
+      new ApiResponse(201, { user, token }, 'Signup successful')
+    );
+  }
+
+  /**
    * Get current authenticated user
    */
   async getMe(req, res) {
