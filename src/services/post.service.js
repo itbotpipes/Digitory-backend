@@ -71,8 +71,12 @@ class PostService {
     return post;
   }
 
-  async getPosts(page, limit, search, category, status, sortString, isAdmin = false) {
+  async getPosts(page, limit, search, category, status, sortString, isAdmin = false, isFeatured) {
     const filters = {};
+    
+    if (isFeatured !== undefined) {
+      filters.isFeatured = isFeatured === 'true' || isFeatured === true;
+    }
     
     if (search) {
       filters.$or = [

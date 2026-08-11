@@ -33,6 +33,7 @@ const postSchema = new mongoose.Schema(
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     tags: [{ type: String, trim: true }],
     isDeleted: { type: Boolean, default: false },
+    isFeatured: { type: Boolean, default: false },
     seo: {
       type: seoSchema,
       default: () => ({}),

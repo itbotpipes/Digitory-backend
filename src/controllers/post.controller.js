@@ -8,10 +8,10 @@ class PostController {
   }
 
   async getPosts(req, res) {
-    const { page = 1, limit = 10, search, category, status, sort } = req.query;
+    const { page = 1, limit = 10, search, category, status, sort, isFeatured } = req.query;
     const isAdmin = !!req.user; // If request passes auth (admin panel), we allow fetching drafts
     
-    const result = await postService.getPosts(page, limit, search, category, status, sort, isAdmin);
+    const result = await postService.getPosts(page, limit, search, category, status, sort, isAdmin, isFeatured);
     res.status(200).json(new ApiResponse(200, result, 'Posts fetched successfully'));
   }
 
