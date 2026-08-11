@@ -45,6 +45,12 @@ const solutionSchema = new mongoose.Schema(
     description: { type: String },
     ctaText: { type: String },
     trustText: { type: String },
+    image: { type: String },
+    gridTitle: { type: String },
+    gridDesc: { type: String },
+    opsTitle: { type: String },
+    opsParagraph: { type: String },
+    opsHighlights: { type: String },
     
     whyChoose: [whyChooseSchema],
     

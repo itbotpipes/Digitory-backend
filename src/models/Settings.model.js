@@ -24,6 +24,8 @@ const settingsSchema = new mongoose.Schema(
         link: { type: linkSchema, required: true },
       },
     ],
+    solutionsGridTitle: { type: String, default: 'Twelve powerful features to help your restaurant run better' },
+    solutionsGridDesc: { type: String, default: 'Click on any feature card below to open its full specifications and details on a new page.' },
   },
   {
     timestamps: true,
