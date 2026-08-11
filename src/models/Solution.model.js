@@ -24,8 +24,8 @@ const integrationCategorySchema = new mongoose.Schema({
 }, { _id: false });
 
 const simpleBlockSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  desc: { type: String, required: true }
+  title: { type: String },
+  desc: { type: String }
 }, { _id: false });
 
 const solutionSchema = new mongoose.Schema(
