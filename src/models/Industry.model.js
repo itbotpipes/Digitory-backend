@@ -28,6 +28,7 @@ const industrySchema = new mongoose.Schema(
     subtitle: { type: String },
     description: { type: String },
     trustText: { type: String },
+    heroImage: { type: String },
 
     featuresTitle: { type: String },
     features: [featureItemSchema],
