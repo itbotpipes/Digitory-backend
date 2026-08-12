@@ -37,6 +37,8 @@ faqRouter.delete('/:id', asyncHandler(faqController.delete));
 const contactRouter = express.Router();
 contactRouter.post('/', createContactMessageValidator, validate, asyncHandler(contactMessageController.create)); // Public can submit
 contactRouter.use(authenticate);
+const authorize = require('../middlewares/authorize');
+contactRouter.use(authorize('manage_contacts'));
 contactRouter.get('/', paginateValidator, validate, asyncHandler(contactMessageController.getAll));
 contactRouter.get('/:id', asyncHandler(contactMessageController.getById));
 contactRouter.patch('/:id/status', updateStatusValidator, validate, asyncHandler(contactMessageController.update));
@@ -46,6 +48,7 @@ contactRouter.delete('/:id', asyncHandler(contactMessageController.delete));
 const demoRouter = express.Router();
 demoRouter.post('/', createDemoRequestValidator, validate, asyncHandler(demoRequestController.create)); // Public can submit
 demoRouter.use(authenticate);
+demoRouter.use(authorize('manage_leads'));
 demoRouter.get('/', paginateValidator, validate, asyncHandler(demoRequestController.getAll));
 demoRouter.get('/:id', asyncHandler(demoRequestController.getById));
 demoRouter.patch('/:id/status', updateStatusValidator, validate, asyncHandler(demoRequestController.update));

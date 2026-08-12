@@ -14,7 +14,8 @@ const router = express.Router();
 
 // All user routes are protected
 router.use(authenticate);
-// We would apply authorize('Admin') here, but keeping it simple for MVP if middleware doesn't exist yet
+const authorize = require('../middlewares/authorize');
+router.use(authorize('manage_users'));
 
 router.route('/')
   .get(getUsersValidator, validate, asyncHandler(userController.getUsers))

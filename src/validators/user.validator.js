@@ -25,5 +25,5 @@ exports.getUsersValidator = [
   query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
   query('search').optional().trim(),
   query('status').optional().trim(),
-  query('role').optional().isMongoId(),
+  query('role').optional().trim(),
 ];

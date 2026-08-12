@@ -4,6 +4,7 @@ const { createSolutionValidator, updateSolutionValidator, getSolutionsValidator 
 const validate = require('../middlewares/validate');
 const asyncHandler = require('../utils/asyncHandler');
 const authenticate = require('../middlewares/auth');
+const authorize = require('../middlewares/authorize');
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ router.get('/:idOrSlug', asyncHandler(solutionController.getSolution));
 
 // Admin routes
 router.use(authenticate);
+router.use(authorize('manage_solutions'));
 
 router.post('/', createSolutionValidator, validate, asyncHandler(solutionController.createSolution));
 router.put('/:id', updateSolutionValidator, validate, asyncHandler(solutionController.updateSolution));

@@ -3,6 +3,7 @@ const ApiResponse = require('../utils/ApiResponse');
 const mongoose = require('mongoose');
 const authRoutes = require('./auth.routes');
 const userRoutes = require('./user.routes');
+const roleRoutes = require('./role.routes');
 const pageRoutes = require('./page.routes');
 const mediaRoutes = require('./media.routes');
 const navigationRoutes = require('./navigation.routes');
@@ -43,6 +44,7 @@ router.get('/ready', async (req, res) => {
 // Mount Routes
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
+router.use('/roles', roleRoutes);
 router.use('/pages', pageRoutes);
 router.use('/media', mediaRoutes);
 router.use('/navigation', navigationRoutes);

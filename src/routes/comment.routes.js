@@ -15,6 +15,8 @@ router.get('/post/:postId', getCommentsByPost);
 
 // Admin routes
 router.use(authenticate);
+const authorize = require('../middlewares/authorize');
+router.use(authorize('manage_comments'));
 
 router.get('/', getAllComments);
 router.delete('/:id', deleteComment);

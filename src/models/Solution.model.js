@@ -9,7 +9,9 @@ const whyChooseSchema = new mongoose.Schema({
 const featureItemSchema = new mongoose.Schema({
   title: { type: String, required: true },
   desc: { type: String, required: true },
-  icon: { type: String } // SVG string
+  icon: { type: String }, // SVG string
+  speed: { type: String },
+  accuracy: { type: String }
 }, { _id: false });
 
 const businessTypeItemSchema = new mongoose.Schema({
@@ -67,7 +69,24 @@ const solutionSchema = new mongoose.Schema(
     supportItems: [{ type: String }],
     securityItems: [{ type: String }],
     
+    faqs: [{
+      question: { type: String },
+      answer: { type: String }
+    }],
+    
     ctaBlock: { type: simpleBlockSchema },
+
+    category: { type: String },
+    layerTitle: { type: String },
+    layerDesc: { type: String },
+    metricsTitle: { type: String },
+    metricsItems: [{
+      value: { type: String },
+      label: { type: String },
+      desc: { type: String }
+    }],
+    businessTypesTitle: { type: String },
+    businessTypesDesc: { type: String },
     
     seo: {
       type: seoSchema,

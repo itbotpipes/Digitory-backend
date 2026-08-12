@@ -21,6 +21,8 @@ router.get('/:idOrSlug', asyncHandler(postController.getPost));
 
 // Admin routes
 router.use(authenticate);
+const authorize = require('../middlewares/authorize');
+router.use(authorize('manage_blogs'));
 
 router.post('/', createPostValidator, validate, asyncHandler(postController.createPost));
 router.put('/:id', updatePostValidator, validate, asyncHandler(postController.updatePost));

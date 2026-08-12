@@ -9,7 +9,7 @@ const env = cleanEnv(process.env, {
   MONGO_URI: str({ default: 'mongodb://localhost:27017/digitory' }),
   JWT_SECRET: str({ default: 'supersecret_jwt_key_change_me' }),
   JWT_REFRESH_SECRET: str({ default: 'supersecret_refresh_key_change_me' }),
-  JWT_EXPIRES_IN: str({ default: '15m' }),
+  JWT_EXPIRES_IN: str({ default: '3d' }),
   JWT_REFRESH_EXPIRES_IN: str({ default: '7d' }),
   CORS_ORIGIN: str({ default: '*' }),
 });
