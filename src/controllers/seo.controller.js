@@ -2,6 +2,7 @@ const SeoEntry = require('../models/SeoEntry.model');
 const Post = require('../models/Post.model');
 const Page = require('../models/Page.model');
 const Solution = require('../models/Solution.model');
+const Industry = require('../models/Industry.model');
 const ApiResponse = require('../utils/ApiResponse');
 const asyncHandler = require('../utils/asyncHandler');
 const mongoose = require('mongoose');
@@ -30,11 +31,12 @@ exports.getAllSeo = asyncHandler(async (req, res) => {
     }
   }
 
-  // To show all pages in the table, we should fetch from Post, Page, Solution, then attach SEO
-  const [posts, pages, solutions, seoEntries] = await Promise.all([
+  // To show all pages in the table, we should fetch from Post, Page, Solution, Industry then attach SEO
+  const [posts, pages, solutions, industries, seoEntries] = await Promise.all([
     Post.find({}).select('title slug status updatedAt createdAt').lean(),
     Page.find({}).select('title slug status updatedAt createdAt').lean(),
     Solution.find({}).select('title slug status updatedAt createdAt').lean(),
+    Industry.find({}).select('title slug status updatedAt createdAt').lean(),
     SeoEntry.find({}).lean()
   ]);
 
@@ -51,6 +53,8 @@ exports.getAllSeo = asyncHandler(async (req, res) => {
       url = `/blog/${item.slug}`;
     } else if (type === 'Solution') {
       url = `/solutions/${item.slug}`;
+    } else if (type === 'Industry') {
+      url = `/restaurant-types/${item.slug}`;
     } else if (type === 'Page') {
       url = item.slug === 'home' ? '/' : `/${item.slug}`;
     }
@@ -68,57 +72,115 @@ exports.getAllSeo = asyncHandler(async (req, res) => {
     };
   });
 
-  const allPages = [
+  const allData = [
     ...mapData(posts, 'Post'),
     ...mapData(pages, 'Page'),
-    ...mapData(solutions, 'Solution')
+    ...mapData(solutions, 'Solution'),
+    ...mapData(industries, 'Industry')
   ];
 
-  return res.status(200).json(new ApiResponse(200, allPages, 'Fetched all pages with SEO'));
+  // Calculate some analytics
+  const missingTitle = allData.filter(p => !p.seo || !p.seo.title).length;
+  const missingDesc = allData.filter(p => !p.seo || !p.seo.description).length;
+  const noIndex = allData.filter(p => p.seo && p.seo.robotsIndex === 'noindex').length;
+
+  const titles = allData.map(p => p.seo?.title).filter(Boolean);
+  const duplicateTitles = titles.length - new Set(titles).size;
+
+  const descriptions = allData.map(p => p.seo?.description).filter(Boolean);
+  const duplicateDescriptions = descriptions.length - new Set(descriptions).size;
+
+  // Simple SEO score out of 100
+  let score = 100;
+  if (allData.length > 0) {
+    const penalty = (missingTitle * 10 + missingDesc * 8 + duplicateTitles * 5 + duplicateDescriptions * 4) / allData.length;
+    score = Math.max(20, 100 - penalty);
+  }
+
+  const analytics = {
+    totalEntries: allData.length,
+    missingTitle,
+    missingDesc,
+    noIndex,
+    duplicateTitles,
+    duplicateDescriptions,
+    score: Math.round(score)
+  };
+
+  return res.status(200).json(new ApiResponse(200, { list: allData, analytics }, 'SEO Pages and Analytics'));
 });
 
 // GET /api/seo/:pageType/:pageId
-exports.getSeo = asyncHandler(async (req, res) => {
+exports.getSeoByPage = asyncHandler(async (req, res) => {
   const { pageType, pageId } = req.params;
   const seo = await SeoEntry.findOne({ pageId, pageType });
-  return res.status(200).json(new ApiResponse(200, seo, 'Fetched SEO entry'));
+  return res.status(200).json(new ApiResponse(200, seo || null, 'Fetched SEO entry'));
 });
 
 // GET /api/seo/analytics
 exports.getSeoAnalytics = asyncHandler(async (req, res) => {
-  const seoEntries = await SeoEntry.find({}).lean();
-  
-  let missingTitle = 0;
-  let missingDesc = 0;
-  let noIndex = 0;
+  const [posts, pages, solutions, industries, seoEntries] = await Promise.all([
+    Post.find({}).select('title slug').lean(),
+    Page.find({}).select('title slug').lean(),
+    Solution.find({}).select('title slug').lean(),
+    Industry.find({}).select('title slug').lean(),
+    SeoEntry.find({}).lean()
+  ]);
 
-  const titles = new Set();
-  const descriptions = new Set();
-  let duplicateTitles = 0;
-  let duplicateDescriptions = 0;
-
-  seoEntries.forEach(seo => {
-    if (!seo.title) missingTitle++;
-    else {
-      if (titles.has(seo.title)) duplicateTitles++;
-      else titles.add(seo.title);
+  const mapData = (items, type) => items.map(item => {
+    let url = '';
+    if (type === 'Post') {
+      url = `/blog/${item.slug}`;
+    } else if (type === 'Solution') {
+      url = `/solutions/${item.slug}`;
+    } else if (type === 'Industry') {
+      url = `/restaurant-types/${item.slug}`;
+    } else if (type === 'Page') {
+      url = item.slug === 'home' ? '/' : `/${item.slug}`;
     }
+    url = url.replace(/\/\/+/g, '/');
 
-    if (!seo.description) missingDesc++;
-    else {
-      if (descriptions.has(seo.description)) duplicateDescriptions++;
-      else descriptions.add(seo.description);
-    }
-
-    if (seo.robotsIndex === 'noindex') noIndex++;
+    return {
+      _id: item._id,
+      pageType: type,
+      name: item.title,
+      url,
+      slug: item.slug
+    };
   });
 
-  // Basic score calculation
-  const total = seoEntries.length || 1;
-  const score = Math.max(0, 100 - ((missingTitle + missingDesc + duplicateTitles) / (total * 3) * 100));
+  const allData = [
+    ...mapData(posts, 'Post'),
+    ...mapData(pages, 'Page'),
+    ...mapData(solutions, 'Solution'),
+    ...mapData(industries, 'Industry')
+  ];
+
+  const seoMap = {};
+  seoEntries.forEach(seo => {
+    if (seo.pageId) {
+      seoMap[seo.pageId.toString()] = seo;
+    }
+  });
+
+  const missingTitle = allData.filter(p => !seoMap[p._id.toString()] || !seoMap[p._id.toString()].title).length;
+  const missingDesc = allData.filter(p => !seoMap[p._id.toString()] || !seoMap[p._id.toString()].description).length;
+  const noIndex = allData.filter(p => seoMap[p._id.toString()] && seoMap[p._id.toString()].robotsIndex === 'noindex').length;
+
+  const titles = allData.map(p => seoMap[p._id.toString()]?.title).filter(Boolean);
+  const duplicateTitles = titles.length - new Set(titles).size;
+
+  const descriptions = allData.map(p => seoMap[p._id.toString()]?.description).filter(Boolean);
+  const duplicateDescriptions = descriptions.length - new Set(descriptions).size;
+
+  let score = 100;
+  if (allData.length > 0) {
+    const penalty = (missingTitle * 10 + missingDesc * 8 + duplicateTitles * 5 + duplicateDescriptions * 4) / allData.length;
+    score = Math.max(20, 100 - penalty);
+  }
 
   const analytics = {
-    totalEntries: seoEntries.length,
+    totalEntries: allData.length,
     missingTitle,
     missingDesc,
     noIndex,
@@ -149,6 +211,22 @@ exports.saveSeo = asyncHandler(async (req, res) => {
     } else if (pageType === 'Solution') {
       const item = await Solution.findById(pageId).select('slug');
       if (item) slug = item.slug;
+    } else if (pageType === 'Industry') {
+      const item = await Industry.findById(pageId).select('slug');
+      if (item) slug = item.slug;
+    }
+  }
+
+  // Update both the SEO entry and the underlying collection's slug
+  if (slug) {
+    if (pageType === 'Post') {
+      await Post.findByIdAndUpdate(pageId, { $set: { slug } });
+    } else if (pageType === 'Page') {
+      await Page.findByIdAndUpdate(pageId, { $set: { slug } });
+    } else if (pageType === 'Solution') {
+      await Solution.findByIdAndUpdate(pageId, { $set: { slug } });
+    } else if (pageType === 'Industry') {
+      await Industry.findByIdAndUpdate(pageId, { $set: { slug } });
     }
   }
 

@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Public/Front-end endpoint
 router.get('/:pageType/slug/:slug', seoController.getSeoBySlug);
-router.get('/:pageType/:pageId', seoController.getSeo);
+router.get('/:pageType/:pageId', seoController.getSeoByPage);
 
 // Admin routes
 router.use(authenticate);
