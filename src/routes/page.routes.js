@@ -17,6 +17,7 @@ const optionalAuth = (req, res, next) => {
 
 // Public endpoints (or lightly authenticated)
 router.get('/', optionalAuth, getPagesValidator, validate, asyncHandler(pageController.getPages));
+router.get('/slug/:slug', optionalAuth, asyncHandler(pageController.getPageBySlug));
 router.get('/:id', optionalAuth, asyncHandler(pageController.getPageById));
 
 // Admin routes

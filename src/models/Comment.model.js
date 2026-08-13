@@ -7,6 +7,16 @@ const commentSchema = new mongoose.Schema(
       ref: 'Post',
       required: true,
     },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+    parentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Comment',
+      default: null,
+    },
     name: {
       type: String,
       required: true,
@@ -16,6 +26,18 @@ const commentSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+    },
+    isEdited: {
+      type: Boolean,
+      default: false,
+    },
+    isReported: {
+      type: Boolean,
+      default: false,
+    },
+    reportsCount: {
+      type: Number,
+      default: 0,
     },
     isDeleted: {
       type: Boolean,

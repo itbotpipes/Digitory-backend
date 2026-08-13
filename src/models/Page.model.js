@@ -3,6 +3,13 @@ const baseContentSchema = require('./base/BaseContent.schema');
 
 const pageSchema = baseContentSchema.clone();
 
+pageSchema.add({
+  content: {
+    type: String,
+    default: ''
+  }
+});
+
 // Indexes
 pageSchema.index({ slug: 1 }, { unique: true });
 pageSchema.index({ status: 1 });

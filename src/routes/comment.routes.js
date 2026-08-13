@@ -4,6 +4,8 @@ const {
   getCommentsByPost,
   getAllComments,
   deleteComment,
+  editComment,
+  reportComment,
 } = require('../controllers/comment.controller');
 const authenticate = require('../middlewares/auth');
 
@@ -12,6 +14,8 @@ const router = express.Router();
 // Public routes
 router.post('/', createComment);
 router.get('/post/:postId', getCommentsByPost);
+router.put('/:id', editComment);
+router.post('/:id/report', reportComment);
 
 // Admin routes
 router.use(authenticate);

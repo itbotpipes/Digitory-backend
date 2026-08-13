@@ -18,6 +18,11 @@ class PageController {
     res.status(200).json(new ApiResponse(200, page, 'Page fetched successfully'));
   }
 
+  async getPageBySlug(req, res) {
+    const page = await pageService.getPageBySlug(req.params.slug);
+    res.status(200).json(new ApiResponse(200, page, 'Page fetched successfully'));
+  }
+
   async updatePage(req, res) {
     const page = await pageService.updatePage(req.params.id, req.body);
     res.status(200).json(new ApiResponse(200, page, 'Page updated successfully'));

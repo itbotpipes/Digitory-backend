@@ -31,6 +31,12 @@ class PageService {
     return page;
   }
 
+  async getPageBySlug(slug) {
+    const page = await pageRepository.findBySlug(slug);
+    if (!page) throw new ApiError(404, 'Page not found');
+    return page;
+  }
+
   async updatePage(id, updateData) {
     const page = await pageRepository.findById(id);
     if (!page) throw new ApiError(404, 'Page not found');
