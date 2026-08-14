@@ -14,14 +14,23 @@ class GenericService {
     return await this.repo.create(data);
   }
 
-  async getAll(page, limit, search) {
+  async getAll(page, limit, search, status, startDate, endDate) {
     const filters = {};
     if (search) {
       filters.$or = [
         { name: { $regex: search, $options: 'i' } },
         { question: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
       ];
+    }
+    if (status) {
+      filters.status = status;
+    }
+    if (startDate || endDate) {
+      filters.createdAt = {};
+      if (startDate) filters.createdAt.$gte = new Date(startDate);
+      if (endDate) filters.createdAt.$lte = new Date(endDate);
     }
     return await this.repo.paginate(page, limit, filters);
   }

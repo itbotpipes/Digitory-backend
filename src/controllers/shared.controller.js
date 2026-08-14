@@ -8,8 +8,8 @@ const createController = (service) => {
       res.status(201).json(new ApiResponse(201, doc, `${service.entityName} created successfully`));
     },
     getAll: async (req, res) => {
-      const { page = 1, limit = 10, search } = req.query;
-      const result = await service.getAll(page, limit, search);
+      const { page = 1, limit = 10, search, status, startDate, endDate } = req.query;
+      const result = await service.getAll(page, limit, search, status, startDate, endDate);
       res.status(200).json(new ApiResponse(200, result, `${service.entityName}s fetched successfully`));
     },
     getById: async (req, res) => {

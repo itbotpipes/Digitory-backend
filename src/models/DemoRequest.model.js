@@ -27,8 +27,17 @@ const demoRequestSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['New', 'Contacted', 'Qualified', 'Closed'],
+      enum: ['New', 'Contacted', 'In Progress', 'Qualified', 'Closed', 'Lost', 'Not Interested', 'Resolved'],
       default: 'New',
+    },
+    lastContactedDate: {
+      type: Date,
+      default: null,
+    },
+    callNotes: {
+      type: String,
+      trim: true,
+      default: '',
     },
   },
   { timestamps: true }
