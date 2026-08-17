@@ -169,7 +169,7 @@ exports.getCommentsByPost = asyncHandler(async (req, res) => {
   const { postId } = req.params;
 
   // Retrieve all comments for this post
-  const comments = await Comment.find({ post: postId, isDeleted: { $ne: true } })
+  const comments = await Comment.find({ post: postId, isDeleted: { $ne: true }, isHidden: { $ne: true } })
     .populate('user', 'name email')
     .sort({ createdAt: -1 })
     .lean();
@@ -233,4 +233,33 @@ exports.deleteComment = asyncHandler(async (req, res) => {
   await Comment.updateMany({ parentId: id }, { $set: { isDeleted: true } });
 
   return res.status(200).json(new ApiResponse(200, null, 'Comment deleted successfully'));
+});
+
+// PATCH /api/comments/:id/toggle-hide
+exports.toggleHideComment = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const comment = await Comment.findById(id);
+  if (!comment) {
+    return res.status(404).json(new ApiResponse(404, null, 'Comment not found'));
+  }
+
+  // Verify caller is admin
+  const Role = require('../models/Role.model');
+  let isAdmin = false;
+  if (req.user) {
+    const role = await Role.findById(req.user.roleId);
+    if (role && (role.permissions.includes('*') || role.name === 'Admin' || role.permissions.includes('manage_comments'))) {
+      isAdmin = true;
+    }
+  }
+
+  if (!isAdmin) {
+    return res.status(403).json(new ApiResponse(403, null, 'Not authorized to hide comments'));
+  }
+
+  comment.isHidden = !comment.isHidden;
+  await comment.save();
+
+  return res.status(200).json(new ApiResponse(200, comment, `Comment updated successfully`));
 });

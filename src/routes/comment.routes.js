@@ -8,6 +8,7 @@ const {
   reportComment,
   unreportComment,
   likeComment,
+  toggleHideComment,
 } = require('../controllers/comment.controller');
 const authenticate = require('../middlewares/auth');
 
@@ -30,5 +31,6 @@ const authorize = require('../middlewares/authorize');
 router.use(authorize('manage_comments'));
 
 router.get('/', getAllComments);
+router.patch('/:id/toggle-hide', toggleHideComment);
 
 module.exports = router;

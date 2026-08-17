@@ -14,4 +14,10 @@ router.post('/signup', signupValidator, validate, asyncHandler(authController.si
 // Protected route
 router.get('/me', authenticate, asyncHandler(authController.getMe));
 
+// Mock google login route
+router.post('/google-mock', asyncHandler(authController.googleMock));
+
+// Real google login route
+router.post('/google', asyncHandler(authController.google));
+
 module.exports = router;

@@ -43,6 +43,10 @@ const commentSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isHidden: {
+      type: Boolean,
+      default: false,
+    },
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,

@@ -17,7 +17,7 @@ const contactMessageSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    restaurantName: {
+    businessName: {
       type: String,
       required: true,
       trim: true,
@@ -25,9 +25,8 @@ const contactMessageSchema = new mongoose.Schema(
     category: {
       type: String,
       trim: true,
-      enum: ['Restaurant', 'Hotel', 'Cloud Kitchen'],
     },
-    interested: {
+    purpose: {
       type: String,
       trim: true,
     },

@@ -44,6 +44,27 @@ class AuthController {
       new ApiResponse(200, { user }, 'User fetched successfully')
     );
   }
+
+  /**
+   * Mock Google login
+   */
+  async googleMock(req, res) {
+    const { user, token } = await authService.googleMock();
+    res.status(200).json(
+      new ApiResponse(200, { user, token }, 'Google login successful')
+    );
+  }
+
+  /**
+   * Google OAuth Login
+   */
+  async google(req, res) {
+    const { idToken } = req.body;
+    const { user, token } = await authService.googleLogin(idToken);
+    res.status(200).json(
+      new ApiResponse(200, { user, token }, 'Google login successful')
+    );
+  }
 }
 
 module.exports = new AuthController();

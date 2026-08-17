@@ -41,6 +41,7 @@ const authorize = require('../middlewares/authorize');
 contactRouter.use(authorize('manage_contacts'));
 contactRouter.get('/', paginateValidator, validate, asyncHandler(contactMessageController.getAll));
 contactRouter.get('/:id', asyncHandler(contactMessageController.getById));
+contactRouter.put('/:id', asyncHandler(contactMessageController.update));
 contactRouter.patch('/:id/status', updateStatusValidator, validate, asyncHandler(contactMessageController.update));
 contactRouter.delete('/:id', asyncHandler(contactMessageController.delete));
 
@@ -51,6 +52,7 @@ demoRouter.use(authenticate);
 demoRouter.use(authorize('manage_leads'));
 demoRouter.get('/', paginateValidator, validate, asyncHandler(demoRequestController.getAll));
 demoRouter.get('/:id', asyncHandler(demoRequestController.getById));
+demoRouter.put('/:id', asyncHandler(demoRequestController.update));
 demoRouter.patch('/:id/status', updateStatusValidator, validate, asyncHandler(demoRequestController.update));
 demoRouter.delete('/:id', asyncHandler(demoRequestController.delete));
 

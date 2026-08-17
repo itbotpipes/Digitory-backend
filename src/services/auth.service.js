@@ -84,6 +84,77 @@ class AuthService {
    * For the MVP, we are not using a DB-stored refresh token.
    * Standard stateless JWT authentication.
    */
+  async googleMock() {
+    const email = 'google-mock@example.com';
+    const name = 'Google User';
+    
+    let user = await userRepository.findByEmail(email);
+    if (!user) {
+      let role = await roleRepository.findByName('User');
+      if (!role) {
+        role = await roleRepository.create({ name: 'User', permissions: [] });
+      }
+      user = await userRepository.create({
+        name,
+        email,
+        password: 'GoogleMockPassword123!',
+        roleId: role._id,
+      });
+    }
+
+    const payload = user.getJwtPayload();
+    const token = this.generateToken(payload);
+
+    const userObj = user.toObject();
+    delete userObj.password;
+
+    return { user: userObj, token };
+  }
+
+  async googleLogin(idToken) {
+    if (!idToken) {
+      throw new ApiError(400, 'ID token is required');
+    }
+
+    let ticket;
+    try {
+      const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`);
+      if (!response.ok) {
+        throw new Error('Google token verification failed');
+      }
+      ticket = await response.json();
+    } catch (err) {
+      throw new ApiError(401, 'Invalid Google token');
+    }
+
+    const { email, name, email_verified } = ticket;
+    if (!email || email_verified !== 'true') {
+      throw new ApiError(401, 'Google email not verified');
+    }
+
+    let user = await userRepository.findByEmail(email);
+    if (!user) {
+      let role = await roleRepository.findByName('User');
+      if (!role) {
+        role = await roleRepository.create({ name: 'User', permissions: [] });
+      }
+      user = await userRepository.create({
+        name: name || 'Google User',
+        email,
+        password: Math.random().toString(36).slice(-10) + 'A1!',
+        roleId: role._id,
+      });
+    }
+
+    const payload = user.getJwtPayload();
+    const token = this.generateToken(payload);
+
+    const userObj = user.toObject();
+    delete userObj.password;
+
+    return { user: userObj, token };
+  }
+
   generateToken(payload) {
     return jwt.sign(payload, env.JWT_SECRET, {
       expiresIn: env.JWT_EXPIRES_IN,

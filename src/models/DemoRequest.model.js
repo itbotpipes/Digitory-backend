@@ -17,13 +17,22 @@ const demoRequestSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    locations: {
+    businessName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    category: {
       type: String,
       trim: true,
     },
-    goal: {
+    purpose: {
       type: String,
       trim: true,
+    },
+    message: {
+      type: String,
+      required: true,
     },
     status: {
       type: String,
