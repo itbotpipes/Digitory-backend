@@ -6,6 +6,8 @@ const {
   deleteComment,
   editComment,
   reportComment,
+  unreportComment,
+  likeComment,
 } = require('../controllers/comment.controller');
 const authenticate = require('../middlewares/auth');
 
@@ -14,8 +16,13 @@ const router = express.Router();
 // Public routes
 router.post('/', createComment);
 router.get('/post/:postId', getCommentsByPost);
-router.put('/:id', editComment);
-router.post('/:id/report', reportComment);
+
+// Authenticated routes
+router.put('/:id', authenticate, editComment);
+router.delete('/:id', authenticate, deleteComment);
+router.post('/:id/report', authenticate, reportComment);
+router.post('/:id/unreport', authenticate, unreportComment);
+router.post('/:id/like', authenticate, likeComment);
 
 // Admin routes
 router.use(authenticate);
@@ -23,6 +30,5 @@ const authorize = require('../middlewares/authorize');
 router.use(authorize('manage_comments'));
 
 router.get('/', getAllComments);
-router.delete('/:id', deleteComment);
 
 module.exports = router;
