@@ -65,6 +65,11 @@ class PostService {
     if (post.author && post.author._id) {
       post.author = post.author._id;
     }
+    // Allow explicit author override from editor
+    if (updateData.author && updateData.author !== '') {
+      post.author = updateData.author;
+      delete updateData.author; // handled directly
+    }
     Object.assign(post, updateData);
     // Explicitly update 'updatedAt' natively due to standard mongoose timestamps
     await post.save();

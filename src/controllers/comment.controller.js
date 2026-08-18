@@ -141,18 +141,23 @@ exports.unreportComment = asyncHandler(async (req, res) => {
 // POST /api/comments/:id/like
 exports.likeComment = asyncHandler(async (req, res) => {
   const { id } = req.params;
+  const guestClientId = req.body.guestClientId || req.headers['x-guest-client-id'];
 
   const comment = await Comment.findById(id);
   if (!comment) {
     return res.status(404).json(new ApiResponse(404, null, 'Comment not found'));
   }
 
-  const userId = req.user.id;
-  const likeIndex = comment.likes.indexOf(userId);
+  const userId = req.user ? req.user.id : guestClientId;
+  if (!userId) {
+    return res.status(400).json(new ApiResponse(400, null, 'User ID or Guest Client ID is required to like a comment'));
+  }
+
+  const likeIndex = comment.likes.indexOf(userId.toString());
   if (likeIndex > -1) {
     comment.likes.splice(likeIndex, 1);
   } else {
-    comment.likes.push(userId);
+    comment.likes.push(userId.toString());
   }
 
   await comment.save();

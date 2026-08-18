@@ -34,7 +34,7 @@ class PostRepository {
     const finalFilters = { ...filters, isDeleted: false };
     
     const [docs, total] = await Promise.all([
-      Post.find(finalFilters).populate('category').skip(skip).limit(limit).sort(sort),
+      Post.find(finalFilters).populate('category author').skip(skip).limit(limit).sort(sort),
       Post.countDocuments(finalFilters)
     ]);
 

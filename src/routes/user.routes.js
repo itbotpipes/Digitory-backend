@@ -12,6 +12,17 @@ const authenticate = require('../middlewares/auth');
 
 const router = express.Router();
 
+// Public: get all users who can author blogs (have manage_blogs permission)
+router.get('/authors', asyncHandler(async (req, res) => {
+  const User = require('../models/User.model');
+  const Role = require('../models/Role.model');
+  const ApiResponse = require('../utils/ApiResponse');
+  const blogRoles = await Role.find({ permissions: { $in: ['manage_blogs', '*'] } }).select('_id');
+  const roleIds = blogRoles.map(r => r._id);
+  const authors = await User.find({ roleId: { $in: roleIds } }).select('_id name email').sort({ name: 1 });
+  res.status(200).json(new ApiResponse(200, authors, 'Authors fetched successfully'));
+}));
+
 // All user routes are protected
 router.use(authenticate);
 const authorize = require('../middlewares/authorize');

@@ -23,7 +23,7 @@ router.put('/:id', authenticate, editComment);
 router.delete('/:id', authenticate, deleteComment);
 router.post('/:id/report', authenticate, reportComment);
 router.post('/:id/unreport', authenticate, unreportComment);
-router.post('/:id/like', authenticate, likeComment);
+router.post('/:id/like', likeComment);
 
 // Admin routes
 router.use(authenticate);
